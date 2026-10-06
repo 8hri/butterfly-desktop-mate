@@ -1,0 +1,386 @@
+/* ---------- Base ---------- */
+
+:root {
+  color-scheme: dark;
+  --color-bg: #eaf2f0;
+  --color-ink: #24312d;
+  --color-ink-soft: rgba(36, 49, 45, 0.62);
+  --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---------- App shell ---------- */
+
+.app {
+  position: fixed;
+  inset: 0;
+}
+
+.app__canvas {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+}
+
+/* ---------- Loader veil ---------- */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  background: var(--color-bg);
+  transition: opacity 1.1s ease;
+}
+
+.loader--done {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loader__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-ink-soft);
+  animation: loader-breathe 1.6s ease-in-out infinite;
+}
+
+@keyframes loader-breathe {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.15);
+  }
+}
+
+/* ---------- Overlay ---------- */
+
+/* The overlay sits above the canvas but lets pointer input through to it. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(16px, 3vw, 30px);
+  pointer-events: none;
+  opacity: 0;
+  animation: overlay-in 1.4s ease 0.35s forwards;
+}
+
+@keyframes overlay-in {
+  to {
+    opacity: 1;
+  }
+}
+
+.overlay__title {
+  margin: 0;
+  font-size: clamp(15px, 1.5vw, 19px);
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+.overlay__header,
+.overlay__footer {
+  display: flex;
+  justify-content: center;
+}
+
+/* Hints and credit share the bottom edge, clear of the butterfly. */
+.overlay__bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(10px, 2vw, 18px);
+}
+
+.overlay__hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: opacity 1.2s ease, transform 1.2s ease;
+}
+
+.overlay__hint--gone {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.overlay__hint p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-ink-soft);
+  text-align: center;
+}
+
+.overlay__credit {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--color-ink-soft);
+  text-align: center;
+}
+
+.overlay__credit strong {
+  font-weight: 600;
+}
+
+/* ---------- Desktop shell ---------- */
+
+/*
+ * Inside Tauri the window is transparent and chrome-less, so the page must
+ * not paint its own background. The `is-desktop` class is applied at startup
+ * from `lib/platform.ts` to `<html>` and `<body>`.
+ *
+ * `body` is matched through `<html>` rather than as `body.is-desktop`: the
+ * body used to carry no marker, so this rule silently failed and painted an
+ * opaque rectangle across the whole desktop window.
+ */
+html.is-desktop,
+html.is-desktop body {
+  background: transparent;
+}
+
+/* The loading veil is web-only: on the desktop it would flash a shape. */
+.is-desktop .loader {
+  display: none;
+}
+
+/*
+ * Web-only chrome. The attribution line is deliberately kept: it is required
+ * by the model licence in every presentation.
+ */
+.is-desktop .overlay__title,
+.is-desktop .overlay__hint {
+  display: none;
+}
+
+/* ---------- Garden chrome (Phase 15.2) ---------- */
+
+/*
+ * The garden window is a normal interactive surface, so a small exit
+ * affordance is allowed here — unlike the desktop overlay, which renders no
+ * UI at all. The container is click-transparent so it never blocks the
+ * scene; only the button takes pointer events. These styles are deliberately
+ * *not* hidden by the `.is-desktop` rules: the garden exists inside the
+ * desktop shell's window.
+ */
+.garden-chrome {
+  position: fixed;
+  left: 18px;
+  bottom: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.garden-chrome__hint {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(45, 61, 56, 0.75);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.garden-chrome__exit {
+  pointer-events: auto;
+  border: 1px solid rgba(45, 61, 56, 0.25);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 12.5px;
+  color: #2d3d38;
+  background: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.garden-chrome__exit:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* The butterfly selector (final phase): same pill language as the exit
+   button, with the active choice gently filled in. */
+.garden-chrome__species {
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.garden-chrome__species-button {
+  pointer-events: auto;
+  border: 1px solid rgba(45, 61, 56, 0.25);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 12.5px;
+  color: #2d3d38;
+  background: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.garden-chrome__species-button:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.garden-chrome__species-button.is-active {
+  background: #2d3d38;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ---------- Butterfly Chase HUD (Phase 16.1) ---------- */
+
+/*
+ * The game's chrome is as small as the game: a corner pill with a score, a
+ * countdown and a way out. Click-transparent like the garden chrome, so it
+ * never blocks the scene; only the buttons take pointer events. It borrows the
+ * garden chrome's visual language so the two read as one quiet surface.
+ */
+.chase-hud {
+  position: fixed;
+  right: 18px;
+  bottom: 16px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.chase-hud__live {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(45, 61, 56, 0.18);
+  font-size: 13px;
+  color: #2d3d38;
+}
+
+.chase-hud__score {
+  font-weight: 600;
+  color: #7a5b1e;
+}
+
+.chase-hud__time {
+  font-variant-numeric: tabular-nums;
+  color: rgba(45, 61, 56, 0.8);
+}
+
+.chase-hud__paused {
+  font-size: 11px;
+  color: rgba(45, 61, 56, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.chase-hud__result {
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(45, 61, 56, 0.18);
+  font-size: 12.5px;
+  color: #2d3d38;
+}
+
+.chase-hud__start,
+.chase-hud__stop {
+  pointer-events: auto;
+  border: 1px solid rgba(45, 61, 56, 0.25);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font: inherit;
+  font-size: 12.5px;
+  color: #2d3d38;
+  background: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.chase-hud__start:hover,
+.chase-hud__stop:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* ---------- Failure state ---------- */
+
+.failure {
+  position: fixed;
+  inset: 0;
+  /* Above the loading veil, which stays up until the scene reports ready. */
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  padding: 24px;
+  background: var(--color-bg);
+}
+
+/* On the desktop even the failure state must not paint a rectangle. */
+.is-desktop .failure {
+  background: transparent;
+}
+
+.failure__title {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-ink-soft);
+}
+
+.failure__hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  opacity: 0.75;
+}
+
+/* ---------- Accessibility ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,15 @@
+Butterfly — Credits
+===================
+
+3D MODEL
+
+  "Animated Butterfly"
+  Created by: Artistic_side
+  License:    Creative Commons Attribution (CC BY)
+              https://creativecommons.org/licenses/
+
+The butterfly model is an external asset, bundled with this application
+unmodified. All rights to the model remain with its creator.
+
+This attribution is also recorded in the project README and shown in the
+browser presentation of the experience.

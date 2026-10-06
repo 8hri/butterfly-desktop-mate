@@ -1,0 +1,41 @@
+[package]
+name = "butterfly"
+version = "0.1.0"
+description = "Desktop companion runtime for the butterfly experience"
+authors = ["Butterfly"]
+license = ""
+repository = ""
+edition = "2024"
+rust-version = "1.90"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# Tauri convention: the library holds the app entry point so it can be reused
+# by the mobile entry point as well.
+name = "butterfly_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.1", features = [] }
+
+[dependencies]
+# Only the Tauri runtime. Native features (tray, window control, filesystem,
+# autostart, ...) are deliberately left out until a phase actually needs them.
+tauri = { version = "2.12.1", features = [] }
+
+# Phase 13B.1: the two Win32 calls that answer "which external window is in
+# front right now" — GetForegroundWindow + GetWindowRect — plus the HWND/RECT
+# types used to exclude our own overlay.
+#
+# This is the *same* major version Tauri 2.12.1 already depends on internally
+# (with a wider feature set), so Cargo unifies the two into a single copy in the
+# dependency graph: no duplicate crate, no new download, and
+# `WebviewWindow::hwnd()` returns exactly this crate's `HWND`, so the
+# self-exclusion comparison needs no casting. Only the features actually used
+# are requested here.
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = [
+  "Win32_Foundation",
+  "Win32_UI_WindowsAndMessaging",
+] }

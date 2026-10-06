@@ -1,0 +1,31 @@
+{
+  "name": "butterfly-experience",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "check": "node tools/test-flight.mjs && node tools/test-camera.mjs && node tools/test-targeting.mjs && node tools/test-airspace.mjs && node tools/test-desktop-space.mjs && node tools/test-awareness.mjs && node tools/test-desktop-refresh.mjs && node tools/test-desktop-windows.mjs && node tools/test-personality.mjs && node tools/test-memory.mjs && node tools/test-app-mode.mjs && node tools/test-garden.mjs && node tools/test-drag.mjs && node tools/test-minigame.mjs && node tools/test-chase.mjs && node tools/test-species.mjs && node tools/check-desktop.mjs"
+  },
+  "dependencies": {
+    "@react-three/fiber": "^9.8.1",
+    "@tauri-apps/api": "^2.12.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.12.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2"
+  }
+}
