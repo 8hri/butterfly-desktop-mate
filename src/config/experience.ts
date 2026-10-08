@@ -75,8 +75,24 @@ export const ULYSSES_ASSET: ButterflyAssetSpec = {
   yawOffset: Math.PI,
 };
 
-/** The two companions' stable identifiers. */
-export type ButterflySpeciesId = "classic" | "ulysses";
+/**
+ * The third selectable butterfly: a repaint of the original model — same
+ * skeleton, same `Flying`/`Idle` clips, same +Z facing and the same bounding
+ * box, so it maps exactly like the default asset and needs no yaw. The
+ * source export contained an accidental Blender default cube (a visible 2×2×2
+ * box around the model); the fixed file detaches that node from the scene
+ * graph — nothing else was touched.
+ */
+export const CLOWN_ASSET: ButterflyAssetSpec = {
+  url: "/assets/clown_butterfly.fixed.glb",
+  clips: { idle: "Idle", flying: "Flying", hover: "Flying" },
+  hoverTimeScale: 0.55,
+  targetSize: 1.35,
+  yawOffset: 0,
+};
+
+/** The selectable companions' stable identifiers. */
+export type ButterflySpeciesId = "classic" | "ulysses" | "clown";
 
 /** One selectable companion visual: an id, a label and its asset. */
 export interface ButterflySpecies {
@@ -86,12 +102,13 @@ export interface ButterflySpecies {
 }
 
 /**
- * The whole selection list. Two entries, deliberately: this is a choice
- * between two visuals for the same companion, not the start of a collection.
+ * The whole selection list. A short, deliberate set of visuals for the same
+ * companion — not the start of a collection.
  */
 export const BUTTERFLY_SPECIES: readonly ButterflySpecies[] = [
   { id: "classic", name: "Existing Butterfly", asset: BUTTERFLY_ASSET },
   { id: "ulysses", name: "Ulysses Butterfly", asset: ULYSSES_ASSET },
+  { id: "clown", name: "Clown Butterfly", asset: CLOWN_ASSET },
 ];
 
 /** Scene-level tuning values. Kept in one place so phases stay decoupled. */

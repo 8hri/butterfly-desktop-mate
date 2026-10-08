@@ -994,10 +994,13 @@ npm run tauri dev
       2. Click "Ulysses Butterfly": the same companion now wears the Ulysses —
          a sensible size, facing its direction of travel, flapping naturally
          (wings sweep up over the body, never folding underneath it).
-      3. It still answers clicks, still follows the cursor, still visits
-         flowers, and the Butterfly chase still works with it.
-      4. Click "Existing Butterfly": the original companion is back, unchanged.
-      5. Reload (or leave for the desktop and come back): the last choice is
+      3. Click "Clown Butterfly": the same companion wears the red-and-black
+         repaint — again a sensible size, facing its direction of travel,
+         flapping naturally (and no stray cube anywhere).
+      4. With any of them selected: it still answers clicks, still follows the
+         cursor, still visits flowers, and the Butterfly chase still works.
+      5. Click "Existing Butterfly": the original companion is back, unchanged.
+      6. Reload (or leave for the desktop and come back): the last choice is
          remembered. On the desktop, the selected butterfly appears with
          everything else exactly as before.
 - [ ] **Butterfly Chase (Phase 16.1, post-fix) — needs a real session check.**
@@ -1514,10 +1517,10 @@ The fixed asset is the second selectable butterfly (below).
 
 ### Butterfly selection (final phase)
 
-The user can choose between two visuals for the **same** companion — the
-original asset and the repaired Ulysses — from the garden chrome (bottom
-left, next to the exit button). The desktop overlay stays UI-free by design;
-it simply wears whatever was last selected.
+The user can choose between three visuals for the **same** companion — the
+original asset, the repaired Ulysses, and the Clown butterfly — from the
+garden chrome (bottom left, next to the exit button). The desktop overlay
+stays UI-free by design; it simply wears whatever was last selected.
 
 The whole feature is deliberately small:
 
@@ -1527,8 +1530,12 @@ The whole feature is deliberately small:
   single `fly` clip to both airborne states and carries `yawOffset: Math.PI`
   (the model faces −Z; measured from its antenna-to-body joint vector — the
   original faces +Z). Its bounding box is close to the original's, so the
-  shared auto-fit needs no bespoke scale. `BUTTERFLY_SPECIES` is the
-  two-entry list: id, label, asset.
+  shared auto-fit needs no bespoke scale. `CLOWN_ASSET` is a repaint of the
+  original model — same skeleton, same `Flying`/`Idle` clips, same facing and
+  bounding box — so it maps exactly like the default; its source export
+  contained an accidental Blender default cube (a visible 2×2×2 box), which
+  `clown_butterfly.fixed.glb` detaches from the scene graph. Nothing else was
+  touched. `BUTTERFLY_SPECIES` is the three-entry list: id, label, asset.
 - **Selection seam** (`src/lib/species.ts`): id validation, resolution, and a
   guarded one-key `localStorage` record (`butterfly.companion.species`) in
   the same never-throwing style as the companion memory. Forgetting the

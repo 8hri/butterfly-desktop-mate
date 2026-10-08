@@ -928,9 +928,9 @@ check(
 {
   const assets = readdirSync(resolve(root, "public", "assets")).sort();
   check(
-    "the asset folder holds exactly the two known butterfly GLBs",
+    "the asset folder holds exactly the known butterfly GLBs",
     assets.join(",") ===
-      "animated_butterfly.glb,ulysses_butterfly.fixed.glb,ulysses_butterfly.glb",
+      "animated_butterfly.glb,clown_butterfly.fixed.glb,clown_butterfly.glb,ulysses_butterfly.fixed.glb",
     assets.join(","),
   );
   check(
@@ -1592,9 +1592,10 @@ check(
   const chrome = read("src/components/garden/GardenChrome.tsx");
 
   check(
-    "the species list is exactly two entries in the config",
+    "the species list is exactly three entries in the config",
     /export const BUTTERFLY_SPECIES/.test(configSource) &&
-      (configSource.match(/id: "(?:classic|ulysses)"/g) ?? []).length === 2,
+      (configSource.match(/id: "(?:classic|ulysses|clown)"/g) ?? []).length === 3 &&
+      !/butterfly_animated/i.test(configSource),
   );
   check(
     "ulysses maps only what differs: the fixed GLB, the fly clip, the 180° yaw",

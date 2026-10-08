@@ -15,6 +15,7 @@ import { resolve } from "node:path";
 import {
   BUTTERFLY_ASSET,
   BUTTERFLY_SPECIES,
+  CLOWN_ASSET,
   ULYSSES_ASSET,
 } from "../src/config/experience.ts";
 import { resolveClip } from "../src/lib/animation.ts";
@@ -33,20 +34,23 @@ const check = (name, ok, detail = "") => {
   if (!ok) failures++;
 };
 
-/** Reads the clip names out of a GLB's JSON chunk — the ground truth. */
-function glbClipNames(path) {
+/** Reads a GLB's JSON chunk — the ground truth. */
+function glbJson(path) {
   const buf = readFileSync(path);
   const jsonLen = buf.readUInt32LE(12);
-  const gltf = JSON.parse(buf.subarray(20, 20 + jsonLen).toString("utf8"));
-  return (gltf.animations ?? []).map((a) => ({ name: a.name }));
+  return JSON.parse(buf.subarray(20, 20 + jsonLen).toString("utf8"));
+}
+function glbClipNames(path) {
+  return (glbJson(path).animations ?? []).map((a) => ({ name: a.name }));
 }
 
-// --- The definitions are exactly two -------------------------------------------
+// --- The definitions are exactly three ------------------------------------------
 check(
-  "the species list is exactly classic and ulysses",
-  BUTTERFLY_SPECIES.length === 2 &&
+  "the species list is exactly classic, ulysses and clown",
+  BUTTERFLY_SPECIES.length === 3 &&
     BUTTERFLY_SPECIES[0].id === "classic" &&
-    BUTTERFLY_SPECIES[1].id === "ulysses",
+    BUTTERFLY_SPECIES[1].id === "ulysses" &&
+    BUTTERFLY_SPECIES[2].id === "clown",
   BUTTERFLY_SPECIES.map((s) => s.id).join(","),
 );
 check("the default species is the original butterfly", DEFAULT_SPECIES_ID === "classic");
@@ -80,6 +84,33 @@ check(
     ULYSSES_ASSET.hoverTimeScale === BUTTERFLY_ASSET.hoverTimeScale,
 );
 
+// --- The Clown mapping is honest ----------------------------------------------------
+check(
+  "clown maps its GLB's own Flying/Idle clips, hover reusing Flying like the default",
+  CLOWN_ASSET.url === "/assets/clown_butterfly.fixed.glb" &&
+    CLOWN_ASSET.clips.idle === "Idle" &&
+    CLOWN_ASSET.clips.flying === "Flying" &&
+    CLOWN_ASSET.clips.hover === "Flying",
+);
+check(
+  "clown is the original model's repaint: same facing, size and hover rate",
+  CLOWN_ASSET.yawOffset === BUTTERFLY_ASSET.yawOffset &&
+    CLOWN_ASSET.targetSize === BUTTERFLY_ASSET.targetSize &&
+    CLOWN_ASSET.hoverTimeScale === BUTTERFLY_ASSET.hoverTimeScale,
+);
+{
+  // The source export contained a visible Blender default cube; the fix
+  // detached that node from the scene graph. Pin that it stays detached.
+  const gltf = glbJson(resolve("public/assets/clown_butterfly.fixed.glb"));
+  const cubeIndex = gltf.nodes.findIndex((n) => n.name === "Cube");
+  const rooted = (gltf.scenes ?? []).some((s) => (s.nodes ?? []).includes(cubeIndex));
+  const childed = gltf.nodes.some((n) => (n.children ?? []).includes(cubeIndex));
+  check(
+    "the accidental cube stays detached from the clown GLB's scene graph",
+    cubeIndex >= 0 && !rooted && !childed,
+  );
+}
+
 // --- The mapped clips really exist in the files --------------------------------------
 for (const species of BUTTERFLY_SPECIES) {
   const clips = glbClipNames(resolve("public", species.asset.url.replace(/^\//, "")));
@@ -94,14 +125,16 @@ for (const species of BUTTERFLY_SPECIES) {
 
 // --- Resolution -------------------------------------------------------------------------
 check(
-  "both ids resolve to their own definitions",
+  "all ids resolve to their own definitions",
   speciesById("classic").asset === BUTTERFLY_ASSET &&
-    speciesById("ulysses").asset === ULYSSES_ASSET,
+    speciesById("ulysses").asset === ULYSSES_ASSET &&
+    speciesById("clown").asset === CLOWN_ASSET,
 );
 check(
   "id validation rejects everything that is not a known id",
   isButterflySpeciesId("classic") &&
     isButterflySpeciesId("ulysses") &&
+    isButterflySpeciesId("clown") &&
     !isButterflySpeciesId("Classic") &&
     !isButterflySpeciesId("") &&
     !isButterflySpeciesId(null) &&
